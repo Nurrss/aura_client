@@ -1,0 +1,5 @@
+[
+  { "id": 1, "title": "Drink water", "streak": 12, "reminderTime": "08:00" },
+  { "id": 2, "title": "Read 20 pages", "streak": 5, "reminderTime": "21:30" },
+  { "id": 3, "title": "Meditation", "streak": 21, "reminderTime": "07:30" }
+]
