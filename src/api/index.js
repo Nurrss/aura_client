@@ -2,20 +2,24 @@ import axios from 'axios'
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true'
 
+// Token management functions kept for backward compatibility
+// With HttpOnly cookies, these are no-ops on the client side
 export function setTokens({ token, refreshToken }) {
-  if (token) localStorage.setItem('aura-access-token', token)
-  if (refreshToken) localStorage.setItem('aura-refresh-token', refreshToken)
+  // Tokens are now stored in HttpOnly cookies by the server
+  // No client-side storage needed
 }
 
 export function clearTokens() {
-  localStorage.removeItem('aura-access-token')
-  localStorage.removeItem('aura-refresh-token')
+  // Tokens are cleared by calling the logout endpoint
+  // which removes HttpOnly cookies on the server side
 }
 
 export function getTokens() {
+  // Tokens are in HttpOnly cookies and not accessible to JavaScript
+  // Return empty to maintain backward compatibility
   return {
-    token: localStorage.getItem('aura-access-token') || null,
-    refreshToken: localStorage.getItem('aura-refresh-token') || null,
+    token: null,
+    refreshToken: null,
   }
 }
 
@@ -81,59 +85,48 @@ if (USE_MOCKS) {
 } else {
   api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || '',
-  })
-
-  api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('aura-access-token')
-    if (token) {
-      config.headers = config.headers || {}
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
+    withCredentials: true, // Enable sending/receiving cookies
   })
 
   let isRefreshing = false
   let refreshPromise = null
 
+  // Response interceptor for automatic token refresh
   api.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config || {}
       const status = error?.response?.status
-      const message = error?.response?.data?.message || ''
+      const message = error?.response?.data?.error || ''
 
-      const tokenExpired = status === 401 && /expired|token/i.test(message)
+      const tokenExpired = status === 401 && /expired|token|invalid/i.test(message)
 
       if (tokenExpired && !originalRequest._retry) {
         originalRequest._retry = true
         if (!isRefreshing) {
           isRefreshing = true
-          const { refreshToken } = getTokens()
           try {
-            refreshPromise = api.post('/api/auth/refresh', { refreshToken })
-            const res = await refreshPromise
-            const { token: newToken, refreshToken: newRefresh } = res.data || {}
-            if (newToken) setTokens({ token: newToken, refreshToken: newRefresh })
+            // Refresh token is sent automatically via cookies
+            refreshPromise = api.post('/api/auth/refresh')
+            await refreshPromise
             isRefreshing = false
+            // Retry the original request with new cookie token
+            return api(originalRequest)
           } catch (e) {
             isRefreshing = false
             clearTokens()
+            // Redirect to login or handle logout
+            window.location.href = '/login'
             return Promise.reject(error)
           }
         } else if (refreshPromise) {
           try {
             await refreshPromise
+            return api(originalRequest)
           } catch (e) {
             return Promise.reject(error)
           }
         }
-
-        const token = localStorage.getItem('aura-access-token')
-        if (token) {
-          originalRequest.headers = originalRequest.headers || {}
-          originalRequest.headers.Authorization = `Bearer ${token}`
-        }
-        return api(originalRequest)
       }
       return Promise.reject(error)
     },

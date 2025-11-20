@@ -1,51 +1,52 @@
 import { defineStore } from 'pinia'
-import api, {
-  setTokens as apiSetTokens,
-  clearTokens as apiClearTokens,
-  getTokens as apiGetTokens,
-} from '../api/index.js'
+import api, { clearTokens as apiClearTokens } from '../api/index.js'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    tokens: { access: null, refresh: null },
     loading: false,
     error: null,
+    initialized: false,
   }),
   getters: {
-    isAuthenticated: (state) => Boolean(state.tokens.access),
+    isAuthenticated: (state) => Boolean(state.user),
   },
   actions: {
-    _setAuth({ user, access, refresh }) {
+    _setAuth({ user }) {
       this.user = user || null
-      this.tokens.access = access || null
-      this.tokens.refresh = refresh || null
-      if (access || refresh) {
-        apiSetTokens({ token: access, refreshToken: refresh })
-      }
+      this.initialized = true
     },
     _clearAuth() {
       this.user = null
-      this.tokens = { access: null, refresh: null }
+      this.initialized = true
       apiClearTokens()
     },
-    hydrateFromStorage() {
-      const { token, refreshToken } = apiGetTokens()
-      this.tokens.access = token
-      this.tokens.refresh = refreshToken
+    async hydrateFromStorage() {
+      // With HttpOnly cookies, check authentication by fetching user profile
+      try {
+        const { data } = await api.get('/api/users/me')
+        if (data?.data) {
+          this._setAuth({ user: data.data })
+        } else {
+          this._clearAuth()
+        }
+      } catch (e) {
+        // Not authenticated or session expired
+        this._clearAuth()
+      }
     },
     async register(payload) {
       this.loading = true
       this.error = null
       try {
         const { data } = await api.post('/api/auth/register', payload)
-        const { user, token, refreshToken } = data
-        this._setAuth({ user, access: token, refresh: refreshToken })
+        // Registration may not return tokens immediately (email verification required)
+        // Just mark success and let user log in after verification
         this.loading = false
         return true
       } catch (e) {
         this.loading = false
-        this.error = e?.response?.data?.message || 'Registration failed'
+        this.error = e?.response?.data?.error || 'Registration failed'
         return false
       }
     },
@@ -54,26 +55,34 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const { data } = await api.post('/api/auth/login', payload)
-        const { user, token, refreshToken } = data
-        this._setAuth({ user, access: token, refresh: refreshToken })
+        // With HttpOnly cookies, tokens are set automatically
+        // Response contains only user info
+        const user = data?.data?.user
+        this._setAuth({ user })
         this.loading = false
         return true
       } catch (e) {
         this.loading = false
-        this.error = e?.response?.data?.message || 'Login failed'
+        this.error = e?.response?.data?.error || 'Login failed'
         return false
       }
     },
-    logout() {
-      this._clearAuth()
+    async logout() {
+      try {
+        // Call logout endpoint to clear HttpOnly cookies
+        await api.post('/api/auth/logout')
+      } catch (e) {
+        // Even if the API call fails, clear local state
+        console.error('Logout error:', e)
+      } finally {
+        this._clearAuth()
+      }
     },
     async refreshToken() {
-      const refresh = this.tokens.refresh || apiGetTokens().refreshToken
-      if (!refresh) return false
+      // Refresh is handled automatically by axios interceptor
+      // This method can be used to manually trigger a refresh if needed
       try {
-        const { data } = await api.post('/api/auth/refresh', { refreshToken: refresh })
-        const { token, refreshToken } = data
-        this._setAuth({ user: this.user, access: token, refresh: refreshToken })
+        await api.post('/api/auth/refresh')
         return true
       } catch (e) {
         this._clearAuth()
