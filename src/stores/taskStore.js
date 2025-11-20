@@ -39,7 +39,7 @@ export const useTaskStore = defineStore('tasks', {
       const today = dayjs().format('YYYY-MM-DD')
       return state.tasks.filter((t) => {
         const date = t.date || (t.startTime ? dayjs(t.startTime).format('YYYY-MM-DD') : null)
-        return date === today && t.status !== 'done'
+        return date === today && t.status !== 'completed'
       })
     },
   },
@@ -123,7 +123,7 @@ export const useTaskStore = defineStore('tasks', {
       this.error = null
       try {
         const completed = await apiCompleteTask(id)
-        this.tasks = this.tasks.map((t) => (t.id === id ? { ...t, status: 'done' } : t))
+        this.tasks = this.tasks.map((t) => (t.id === id ? { ...t, status: 'completed' } : t))
         return completed
       } catch (e) {
         this.error = e.message || 'Failed to complete task'
