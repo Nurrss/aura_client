@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore.js'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 
 const email = ref('')
@@ -12,7 +13,9 @@ const password = ref('')
 async function submit() {
   const ok = await auth.login({ email: email.value, password: password.value })
   if (ok) {
-    router.push('/dashboard')
+    // Redirect to the page user was trying to access, or dashboard
+    const redirect = route.query.redirect || '/dashboard'
+    router.push(redirect)
   }
 }
 </script>
