@@ -23,6 +23,15 @@ export async function createHabit(data) {
   }
 }
 
+export async function updateHabit(id, data) {
+  try {
+    const res = await api.patch(`/api/habits/${id}`, data)
+    return res.data
+  } catch (e) {
+    throw formatError(e, 'Failed to update habit')
+  }
+}
+
 export async function toggleHabit(id) {
   try {
     const res = await api.post(`/api/habits/${id}/toggle`)
