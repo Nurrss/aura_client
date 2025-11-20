@@ -8,6 +8,8 @@ dayjs.extend(relativeTime)
 
 const habitStore = useHabitStore()
 const showModal = ref(false)
+const showDeleteConfirm = ref(false)
+const habitToDelete = ref(null)
 const editingHabit = ref(null)
 
 const formData = ref({
@@ -73,6 +75,22 @@ async function checkIn(habit) {
     await habitStore.toggleHabit(habit.id)
   } catch (e) {
     alert(e.message || 'Failed to check in')
+  }
+}
+
+function confirmDelete(habit) {
+  habitToDelete.value = habit
+  showDeleteConfirm.value = true
+}
+
+async function deleteHabit() {
+  if (!habitToDelete.value) return
+  try {
+    await habitStore.deleteHabit(habitToDelete.value.id)
+    showDeleteConfirm.value = false
+    habitToDelete.value = null
+  } catch (e) {
+    alert(e.message || 'Failed to delete habit')
   }
 }
 
@@ -178,13 +196,22 @@ function formatLastCompleted(date) {
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <h5 class="card-title mb-0 flex-grow-1">{{ habit.title }}</h5>
-              <button
-                class="btn btn-sm btn-outline-primary"
-                @click="openEditModal(habit)"
-                title="Edit habit"
-              >
-                <i class="bi bi-pencil"></i>
-              </button>
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  @click="openEditModal(habit)"
+                  title="Edit habit"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  @click="confirmDelete(habit)"
+                  title="Delete habit"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
 
             <div class="mb-3">
@@ -274,6 +301,40 @@ function formatLastCompleted(date) {
               Cancel
             </button>
             <button type="button" class="btn btn-primary" @click="saveHabit">Save Habit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteConfirm"
+      class="modal d-block"
+      tabindex="-1"
+      style="background-color: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Delete</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="showDeleteConfirm = false"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this habit?</p>
+            <p class="fw-bold mb-2">{{ habitToDelete?.title }}</p>
+            <p class="text-muted small mb-0">
+              <i class="bi bi-fire"></i> Current streak: {{ habitToDelete?.streak || 0 }} days
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="showDeleteConfirm = false">
+              Cancel
+            </button>
+            <button type="button" class="btn btn-danger" @click="deleteHabit">Delete</button>
           </div>
         </div>
       </div>
