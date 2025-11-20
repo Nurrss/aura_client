@@ -16,7 +16,7 @@ export async function startSession(taskId) {
 
 export async function finishSession(sessionId, duration, completed) {
   try {
-    const res = await api.post(`/api/pomodoro/${sessionId}/finish`, { duration, completed })
+    const res = await api.post('/api/pomodoro/finish', { sessionId, duration, completed })
     return res.data
   } catch (e) {
     throw formatError(e, 'Failed to finish session')
