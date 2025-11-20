@@ -8,6 +8,7 @@ import Reports from '../views/Reports.vue'
 import Settings from '../views/Settings.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import VerifyEmail from '../views/VerifyEmail.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,6 +66,12 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: Register,
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/verify-email',
+      name: 'verify-email',
+      component: VerifyEmail,
       meta: { requiresGuest: true },
     },
   ],

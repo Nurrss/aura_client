@@ -2,10 +2,12 @@
 import Navbar from './components/Navbar.vue'
 import Sidebar from './components/Sidebar.vue'
 import Toast from './components/Toast.vue'
+import VerificationBanner from './components/VerificationBanner.vue'
 </script>
 
 <template>
   <Navbar />
+  <VerificationBanner />
 
   <div class="container-fluid">
     <div class="row" style="padding-top: 56px">
