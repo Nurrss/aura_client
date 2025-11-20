@@ -36,24 +36,27 @@ let barChart = null
 const reports = ref([])
 const totalTasks = ref(0)
 const totalFocus = ref(0)
+const loading = ref(false)
 
 async function load(range = '7d') {
-  const now = new Date()
-  const from = new Date()
-  from.setDate(now.getDate() - (range === '30d' ? 29 : 6))
-  const resp = await getReports({ from: from.toISOString(), to: now.toISOString() })
-  reports.value = Array.isArray(resp) ? resp : []
-  totalTasks.value = reports.value.reduce((sum, r) => sum + (r.tasksCompleted || 0), 0)
-  totalFocus.value = reports.value.reduce((sum, r) => sum + (r.focusMinutes || 0), 0)
+  loading.value = true
+  try {
+    const now = new Date()
+    const from = new Date()
+    from.setDate(now.getDate() - (range === '30d' ? 29 : 6))
+    const resp = await getReports({ from: from.toISOString(), to: now.toISOString() })
+    reports.value = Array.isArray(resp) ? resp : []
+    totalTasks.value = reports.value.reduce((sum, r) => sum + (r.tasksCompleted || 0), 0)
+    totalFocus.value = reports.value.reduce((sum, r) => sum + (r.focusMinutes || 0), 0)
 
-  const labels = reports.value.map((r) => r.date)
-  const tasksCompleted = reports.value.map((r) => r.tasksCompleted)
-  const focusMinutes = reports.value.map((r) => r.focusMinutes)
+    const labels = reports.value.map((r) => r.date)
+    const tasksCompleted = reports.value.map((r) => r.tasksCompleted)
+    const focusMinutes = reports.value.map((r) => r.focusMinutes)
 
-  if (lineChart) lineChart.destroy()
-  if (barChart) barChart.destroy()
+    if (lineChart) lineChart.destroy()
+    if (barChart) barChart.destroy()
 
-  lineChart = new Chart(lineCanvas.value.getContext('2d'), {
+    lineChart = new Chart(lineCanvas.value.getContext('2d'), {
     type: 'line',
     data: {
       labels,
@@ -96,6 +99,11 @@ async function load(range = '7d') {
       scales: { y: { beginAtZero: true } },
     },
   })
+  } catch (e) {
+    console.error('Failed to load reports:', e)
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => load('7d'))
@@ -109,7 +117,16 @@ onBeforeUnmount(() => {
 <template>
   <div class="container">
     <h2 class="mb-4">Reports</h2>
-    <div class="row g-3 mb-3">
+
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading reports...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading your reports...</p>
+    </div>
+
+    <div v-else class="row g-3 mb-3">
       <div class="col-6 col-lg-3">
         <div class="card">
           <div class="card-body text-center">
@@ -133,7 +150,8 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-    <div class="row g-4">
+
+    <div v-if="!loading" class="row g-4">
       <div class="col-12 col-lg-6">
         <div class="card" style="height: 360px">
           <div class="card-header fw-semibold">Productivity by day (Tasks Completed)</div>
