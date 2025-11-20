@@ -1,12 +1,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useHabitStore } from '../stores/habitStore.js'
+import { useUiStore } from '../stores/uiStore.js'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
 const habitStore = useHabitStore()
+const uiStore = useUiStore()
 const showModal = ref(false)
 const showDeleteConfirm = ref(false)
 const habitToDelete = ref(null)
@@ -79,21 +81,23 @@ async function saveHabit() {
   try {
     if (editingHabit.value) {
       await habitStore.updateHabit(editingHabit.value.id, payload)
+      uiStore.showToast({ type: 'success', message: 'Habit updated successfully!' })
     } else {
       await habitStore.createHabit(payload)
+      uiStore.showToast({ type: 'success', message: 'Habit created successfully!' })
     }
     showModal.value = false
   } catch (e) {
-    // Error will be displayed from store
-    console.error('Failed to save habit:', e)
+    uiStore.showToast({ type: 'error', message: e.message || 'Failed to save habit' })
   }
 }
 
 async function checkIn(habit) {
   try {
     await habitStore.toggleHabit(habit.id)
+    uiStore.showToast({ type: 'success', message: 'Great job! Streak updated!' })
   } catch (e) {
-    alert(e.message || 'Failed to check in')
+    uiStore.showToast({ type: 'error', message: e.message || 'Failed to check in' })
   }
 }
 
@@ -106,10 +110,11 @@ async function deleteHabit() {
   if (!habitToDelete.value) return
   try {
     await habitStore.deleteHabit(habitToDelete.value.id)
+    uiStore.showToast({ type: 'success', message: 'Habit deleted successfully' })
     showDeleteConfirm.value = false
     habitToDelete.value = null
   } catch (e) {
-    alert(e.message || 'Failed to delete habit')
+    uiStore.showToast({ type: 'error', message: e.message || 'Failed to delete habit' })
   }
 }
 

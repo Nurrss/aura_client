@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useTaskStore } from '../stores/taskStore.js'
+import { useUiStore } from '../stores/uiStore.js'
 import dayjs from 'dayjs'
 
 const taskStore = useTaskStore()
+const uiStore = useUiStore()
 const currentFilter = ref('all')
 const showModal = ref(false)
 const showDeleteConfirm = ref(false)
@@ -118,13 +120,14 @@ async function saveTask() {
   try {
     if (editingTask.value) {
       await taskStore.updateTask(editingTask.value.id, payload)
+      uiStore.showToast({ type: 'success', message: 'Task updated successfully!' })
     } else {
       await taskStore.createTask(payload)
+      uiStore.showToast({ type: 'success', message: 'Task created successfully!' })
     }
     showModal.value = false
   } catch (e) {
-    // Error will be displayed from store
-    console.error('Failed to save task:', e)
+    uiStore.showToast({ type: 'error', message: e.message || 'Failed to save task' })
   }
 }
 
@@ -132,8 +135,9 @@ async function toggleComplete(task) {
   if (task.status === 'completed') return
   try {
     await taskStore.completeTask(task.id)
+    uiStore.showToast({ type: 'success', message: 'Task completed!' })
   } catch (e) {
-    alert(e.message || 'Failed to complete task')
+    uiStore.showToast({ type: 'error', message: e.message || 'Failed to complete task' })
   }
 }
 
@@ -146,10 +150,11 @@ async function deleteTask() {
   if (!taskToDelete.value) return
   try {
     await taskStore.deleteTask(taskToDelete.value.id)
+    uiStore.showToast({ type: 'success', message: 'Task deleted successfully' })
     showDeleteConfirm.value = false
     taskToDelete.value = null
   } catch (e) {
-    alert(e.message || 'Failed to delete task')
+    uiStore.showToast({ type: 'error', message: e.message || 'Failed to delete task' })
   }
 }
 
