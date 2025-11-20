@@ -3,19 +3,19 @@ import axios from 'axios'
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true'
 
 export function setTokens({ token, refreshToken }) {
-  if (token) localStorage.setItem('aura_access', token)
-  if (refreshToken) localStorage.setItem('aura_refresh', refreshToken)
+  if (token) localStorage.setItem('aura-access-token', token)
+  if (refreshToken) localStorage.setItem('aura-refresh-token', refreshToken)
 }
 
 export function clearTokens() {
-  localStorage.removeItem('aura_access')
-  localStorage.removeItem('aura_refresh')
+  localStorage.removeItem('aura-access-token')
+  localStorage.removeItem('aura-refresh-token')
 }
 
 export function getTokens() {
   return {
-    token: localStorage.getItem('aura_access') || null,
-    refreshToken: localStorage.getItem('aura_refresh') || null,
+    token: localStorage.getItem('aura-access-token') || null,
+    refreshToken: localStorage.getItem('aura-refresh-token') || null,
   }
 }
 
@@ -84,7 +84,7 @@ if (USE_MOCKS) {
   })
 
   api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('aura_access')
+    const token = localStorage.getItem('aura-access-token')
     if (token) {
       config.headers = config.headers || {}
       config.headers.Authorization = `Bearer ${token}`
@@ -128,7 +128,7 @@ if (USE_MOCKS) {
           }
         }
 
-        const token = localStorage.getItem('aura_access')
+        const token = localStorage.getItem('aura-access-token')
         if (token) {
           originalRequest.headers = originalRequest.headers || {}
           originalRequest.headers.Authorization = `Bearer ${token}`

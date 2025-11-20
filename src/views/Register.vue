@@ -39,9 +39,11 @@ const passwordError = computed(() => {
 })
 
 const isFormValid = computed(() => {
-  return name.value.trim().length >= 2 &&
+  return (
+    name.value.trim().length >= 2 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) &&
     password.value.length >= 6
+  )
 })
 
 function markTouched(field) {
