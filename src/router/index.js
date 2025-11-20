@@ -6,6 +6,7 @@ import Calendar from '../views/Calendar.vue'
 import Pomodoro from '../views/Pomodoro.vue'
 import Reports from '../views/Reports.vue'
 import Settings from '../views/Settings.vue'
+import Profile from '../views/Profile.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import VerifyEmail from '../views/VerifyEmail.vue'
@@ -54,6 +55,12 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: Settings,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: Profile,
       meta: { requiresAuth: true },
     },
     {

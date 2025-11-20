@@ -45,6 +45,12 @@
           </RouterLink>
         </li>
         <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/profile" aria-label="Go to Profile">
+            <i class="bi bi-person me-2" aria-hidden="true"></i>
+            Profile
+          </RouterLink>
+        </li>
+        <li class="nav-item" role="listitem">
           <RouterLink class="nav-link" to="/settings" aria-label="Go to Settings">
             <i class="bi bi-gear me-2" aria-hidden="true"></i>
             Settings
