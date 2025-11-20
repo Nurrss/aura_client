@@ -21,6 +21,11 @@ const formData = ref({
   status: 'pending',
 })
 
+const formErrors = ref({
+  title: '',
+  dates: '',
+})
+
 onMounted(async () => {
   await taskStore.loadTasks()
 })
@@ -67,9 +72,35 @@ function openEditModal(task) {
   showModal.value = true
 }
 
-async function saveTask() {
+function validateForm() {
+  formErrors.value.title = ''
+  formErrors.value.dates = ''
+  let isValid = true
+
+  // Title validation
   if (!formData.value.title.trim()) {
-    alert('Title is required')
+    formErrors.value.title = 'Title is required'
+    isValid = false
+  } else if (formData.value.title.trim().length < 3) {
+    formErrors.value.title = 'Title must be at least 3 characters'
+    isValid = false
+  }
+
+  // Date validation
+  if (formData.value.startTime && formData.value.endTime) {
+    const start = dayjs(formData.value.startTime)
+    const end = dayjs(formData.value.endTime)
+    if (end.isBefore(start)) {
+      formErrors.value.dates = 'End time cannot be before start time'
+      isValid = false
+    }
+  }
+
+  return isValid
+}
+
+async function saveTask() {
+  if (!validateForm()) {
     return
   }
 
@@ -92,7 +123,8 @@ async function saveTask() {
     }
     showModal.value = false
   } catch (e) {
-    alert(e.message || 'Failed to save task')
+    // Error will be displayed from store
+    console.error('Failed to save task:', e)
   }
 }
 
@@ -306,22 +338,54 @@ function getStatusLabel(status) {
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Title *</label>
-              <input type="text" class="form-control" v-model="formData.title" required />
+              <label for="taskTitle" class="form-label">Title *</label>
+              <input
+                id="taskTitle"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': formErrors.title }"
+                v-model="formData.title"
+                aria-describedby="taskTitleError"
+                required
+              />
+              <div v-if="formErrors.title" id="taskTitleError" class="invalid-feedback">
+                {{ formErrors.title }}
+              </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" rows="3" v-model="formData.description"></textarea>
+              <label for="taskDescription" class="form-label">Description</label>
+              <textarea
+                id="taskDescription"
+                class="form-control"
+                rows="3"
+                v-model="formData.description"
+              ></textarea>
             </div>
             <div class="row mb-3">
               <div class="col-6">
-                <label class="form-label">Start Time</label>
-                <input type="datetime-local" class="form-control" v-model="formData.startTime" />
+                <label for="taskStartTime" class="form-label">Start Time</label>
+                <input
+                  id="taskStartTime"
+                  type="datetime-local"
+                  class="form-control"
+                  :class="{ 'is-invalid': formErrors.dates }"
+                  v-model="formData.startTime"
+                />
               </div>
               <div class="col-6">
-                <label class="form-label">End Time</label>
-                <input type="datetime-local" class="form-control" v-model="formData.endTime" />
+                <label for="taskEndTime" class="form-label">End Time</label>
+                <input
+                  id="taskEndTime"
+                  type="datetime-local"
+                  class="form-control"
+                  :class="{ 'is-invalid': formErrors.dates }"
+                  v-model="formData.endTime"
+                  aria-describedby="datesError"
+                />
               </div>
+            </div>
+            <div v-if="formErrors.dates" class="mb-3">
+              <div id="datesError" class="text-danger small">{{ formErrors.dates }}</div>
             </div>
             <div class="mb-3 form-check">
               <input

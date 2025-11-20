@@ -18,6 +18,10 @@ const formData = ref({
   reminderTime: '',
 })
 
+const formErrors = ref({
+  title: '',
+})
+
 onMounted(async () => {
   await habitStore.loadHabits()
 })
@@ -46,9 +50,23 @@ function openEditModal(habit) {
   showModal.value = true
 }
 
-async function saveHabit() {
+function validateForm() {
+  formErrors.value.title = ''
+  let isValid = true
+
   if (!formData.value.title.trim()) {
-    alert('Title is required')
+    formErrors.value.title = 'Title is required'
+    isValid = false
+  } else if (formData.value.title.trim().length < 3) {
+    formErrors.value.title = 'Title must be at least 3 characters'
+    isValid = false
+  }
+
+  return isValid
+}
+
+async function saveHabit() {
+  if (!validateForm()) {
     return
   }
 
@@ -66,7 +84,8 @@ async function saveHabit() {
     }
     showModal.value = false
   } catch (e) {
-    alert(e.message || 'Failed to save habit')
+    // Error will be displayed from store
+    console.error('Failed to save habit:', e)
   }
 }
 
@@ -274,20 +293,34 @@ function formatLastCompleted(date) {
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Title *</label>
-              <input type="text" class="form-control" v-model="formData.title" required />
+              <label for="habitTitle" class="form-label">Title *</label>
+              <input
+                id="habitTitle"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': formErrors.title }"
+                v-model="formData.title"
+                aria-describedby="habitTitleError"
+                required
+              />
+              <div v-if="formErrors.title" id="habitTitleError" class="invalid-feedback">
+                {{ formErrors.title }}
+              </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Frequency</label>
-              <select class="form-select" v-model="formData.frequency">
+              <label for="habitFrequency" class="form-label">Frequency</label>
+              <select id="habitFrequency" class="form-select" v-model="formData.frequency">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Reminder Time (optional)</label>
+              <label for="habitReminderTime" class="form-label">
+                Reminder Time (optional)
+              </label>
               <input
+                id="habitReminderTime"
                 type="time"
                 class="form-control"
                 v-model="formData.reminderTime"
