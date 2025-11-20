@@ -4,29 +4,51 @@
   <nav
     id="sidebarMenu"
     class="col-12 col-md-3 col-lg-2 d-md-block bg-body-tertiary sidebar collapse"
+    aria-label="Main navigation"
   >
     <div class="position-sticky pt-3 sidebar-sticky">
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/">Dashboard</RouterLink>
+      <ul class="nav flex-column" role="list">
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/" aria-label="Go to Dashboard">
+            <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>
+            Dashboard
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/tasks">Tasks</RouterLink>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/tasks" aria-label="Go to Tasks">
+            <i class="bi bi-check2-square me-2" aria-hidden="true"></i>
+            Tasks
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/habits">Habits</RouterLink>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/habits" aria-label="Go to Habits">
+            <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i>
+            Habits
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/calendar">Calendar</RouterLink>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/calendar" aria-label="Go to Calendar">
+            <i class="bi bi-calendar3 me-2" aria-hidden="true"></i>
+            Calendar
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/pomodoro">Pomodoro</RouterLink>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/pomodoro" aria-label="Go to Pomodoro Timer">
+            <i class="bi bi-alarm me-2" aria-hidden="true"></i>
+            Pomodoro
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/reports">Reports</RouterLink>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/reports" aria-label="Go to Reports">
+            <i class="bi bi-bar-chart me-2" aria-hidden="true"></i>
+            Reports
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/settings">Settings</RouterLink>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/settings" aria-label="Go to Settings">
+            <i class="bi bi-gear me-2" aria-hidden="true"></i>
+            Settings
+          </RouterLink>
         </li>
       </ul>
     </div>

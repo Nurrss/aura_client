@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useTaskStore } from '../stores/taskStore.js'
 import { useUiStore } from '../stores/uiStore.js'
 import dayjs from 'dayjs'
@@ -11,6 +11,35 @@ const showModal = ref(false)
 const showDeleteConfirm = ref(false)
 const taskToDelete = ref(null)
 const editingTask = ref(null)
+
+// Focus management
+watch(showModal, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener('keydown', handleModalEscape)
+  } else {
+    document.removeEventListener('keydown', handleModalEscape)
+  }
+})
+
+watch(showDeleteConfirm, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener('keydown', handleDeleteModalEscape)
+  } else {
+    document.removeEventListener('keydown', handleDeleteModalEscape)
+  }
+})
+
+function handleModalEscape(e) {
+  if (e.key === 'Escape') {
+    showModal.value = false
+  }
+}
+
+function handleDeleteModalEscape(e) {
+  if (e.key === 'Escape') {
+    showDeleteConfirm.value = false
+  }
+}
 
 const formData = ref({
   title: '',

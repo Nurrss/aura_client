@@ -6,6 +6,7 @@ import VerificationBanner from './components/VerificationBanner.vue'
 </script>
 
 <template>
+  <a href="#main-content" class="skip-link visually-hidden-focusable">Skip to main content</a>
   <Navbar />
   <VerificationBanner />
 
@@ -13,7 +14,12 @@ import VerificationBanner from './components/VerificationBanner.vue'
     <div class="row" style="padding-top: 56px">
       <Sidebar />
 
-      <main class="col-12 ms-sm-auto col-md-9 col-lg-10 px-4 py-4">
+      <main
+        id="main-content"
+        class="col-12 ms-sm-auto col-md-9 col-lg-10 px-4 py-4"
+        role="main"
+        aria-label="Main content"
+      >
         <transition name="fade" mode="out-in">
           <router-view />
         </transition>
