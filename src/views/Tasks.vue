@@ -6,6 +6,8 @@ import dayjs from 'dayjs'
 const taskStore = useTaskStore()
 const currentFilter = ref('all')
 const showModal = ref(false)
+const showDeleteConfirm = ref(false)
+const taskToDelete = ref(null)
 const editingTask = ref(null)
 
 const formData = ref({
@@ -100,6 +102,22 @@ async function toggleComplete(task) {
     await taskStore.completeTask(task.id)
   } catch (e) {
     alert(e.message || 'Failed to complete task')
+  }
+}
+
+function confirmDelete(task) {
+  taskToDelete.value = task
+  showDeleteConfirm.value = true
+}
+
+async function deleteTask() {
+  if (!taskToDelete.value) return
+  try {
+    await taskStore.deleteTask(taskToDelete.value.id)
+    showDeleteConfirm.value = false
+    taskToDelete.value = null
+  } catch (e) {
+    alert(e.message || 'Failed to delete task')
   }
 }
 
@@ -259,6 +277,13 @@ function getStatusLabel(status) {
                 >
                   <i class="bi bi-pencil"></i>
                 </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  @click="confirmDelete(task)"
+                  title="Delete task"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -335,6 +360,37 @@ function getStatusLabel(status) {
               Cancel
             </button>
             <button type="button" class="btn btn-primary" @click="saveTask">Save Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteConfirm"
+      class="modal d-block"
+      tabindex="-1"
+      style="background-color: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Delete</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="showDeleteConfirm = false"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this task?</p>
+            <p class="fw-bold mb-0">{{ taskToDelete?.title }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="showDeleteConfirm = false">
+              Cancel
+            </button>
+            <button type="button" class="btn btn-danger" @click="deleteTask">Delete</button>
           </div>
         </div>
       </div>

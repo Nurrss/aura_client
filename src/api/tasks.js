@@ -49,3 +49,12 @@ export async function completeTask(id) {
     throw formatError(e, 'Failed to complete task')
   }
 }
+
+export async function deleteTask(id) {
+  try {
+    const res = await api.delete(`/api/tasks/${id}`)
+    return res.data
+  } catch (e) {
+    throw formatError(e, 'Failed to delete task')
+  }
+}

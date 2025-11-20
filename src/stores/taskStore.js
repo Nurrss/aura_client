@@ -7,6 +7,7 @@ import {
   updateTask as apiUpdateTask,
   moveTask as apiMoveTask,
   completeTask as apiCompleteTask,
+  deleteTask as apiDeleteTask,
 } from '../api/tasks.js'
 
 dayjs.extend(utc)
@@ -127,6 +128,16 @@ export const useTaskStore = defineStore('tasks', {
         return completed
       } catch (e) {
         this.error = e.message || 'Failed to complete task'
+        throw e
+      }
+    },
+    async deleteTask(id) {
+      this.error = null
+      try {
+        await apiDeleteTask(id)
+        this.tasks = this.tasks.filter((t) => t.id !== id)
+      } catch (e) {
+        this.error = e.message || 'Failed to delete task'
         throw e
       }
     },

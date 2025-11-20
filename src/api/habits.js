@@ -40,3 +40,12 @@ export async function toggleHabit(id) {
     throw formatError(e, 'Failed to toggle habit')
   }
 }
+
+export async function deleteHabit(id) {
+  try {
+    const res = await api.delete(`/api/habits/${id}`)
+    return res.data
+  } catch (e) {
+    throw formatError(e, 'Failed to delete habit')
+  }
+}

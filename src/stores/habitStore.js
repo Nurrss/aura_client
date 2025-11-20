@@ -4,6 +4,7 @@ import {
   createHabit as apiCreateHabit,
   updateHabit as apiUpdateHabit,
   toggleHabit as apiToggleHabit,
+  deleteHabit as apiDeleteHabit,
 } from '../api/habits.js'
 
 export const useHabitStore = defineStore('habits', {
@@ -68,6 +69,16 @@ export const useHabitStore = defineStore('habits', {
         return updated
       } catch (e) {
         this.error = e.message || 'Failed to toggle habit'
+        throw e
+      }
+    },
+    async deleteHabit(id) {
+      this.error = null
+      try {
+        await apiDeleteHabit(id)
+        this.habits = this.habits.filter((h) => h.id !== id)
+      } catch (e) {
+        this.error = e.message || 'Failed to delete habit'
         throw e
       }
     },
