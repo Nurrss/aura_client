@@ -88,10 +88,46 @@ if (USE_MOCKS) {
     withCredentials: true, // Enable sending/receiving cookies
   })
 
+  // CSRF token management
+  let csrfToken = null
+
+  // Fetch CSRF token on startup
+  const fetchCsrfToken = async () => {
+    try {
+      const { data } = await api.get('/api/csrf-token')
+      csrfToken = data?.csrfToken
+      return csrfToken
+    } catch (e) {
+      console.error('Failed to fetch CSRF token:', e)
+      return null
+    }
+  }
+
+  // Request interceptor to add CSRF token to state-changing requests
+  api.interceptors.request.use(async (config) => {
+    const method = config.method?.toUpperCase()
+    const requiresCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+
+    if (requiresCsrf) {
+      // Fetch token if not available
+      if (!csrfToken) {
+        await fetchCsrfToken()
+      }
+
+      // Add CSRF token header
+      if (csrfToken) {
+        config.headers = config.headers || {}
+        config.headers['x-csrf-token'] = csrfToken
+      }
+    }
+
+    return config
+  })
+
   let isRefreshing = false
   let refreshPromise = null
 
-  // Response interceptor for automatic token refresh
+  // Response interceptor for automatic token refresh and CSRF errors
   api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -100,7 +136,17 @@ if (USE_MOCKS) {
       const message = error?.response?.data?.error || ''
 
       const tokenExpired = status === 401 && /expired|token|invalid/i.test(message)
+      const csrfError = status === 403 && /csrf/i.test(message)
 
+      // Handle CSRF token errors
+      if (csrfError && !originalRequest._csrfRetry) {
+        originalRequest._csrfRetry = true
+        // Refetch CSRF token and retry
+        await fetchCsrfToken()
+        return api(originalRequest)
+      }
+
+      // Handle authentication token expiration
       if (tokenExpired && !originalRequest._retry) {
         originalRequest._retry = true
         if (!isRefreshing) {
@@ -131,6 +177,9 @@ if (USE_MOCKS) {
       return Promise.reject(error)
     },
   )
+
+  // Fetch CSRF token on module load
+  fetchCsrfToken()
 }
 
 export default api
