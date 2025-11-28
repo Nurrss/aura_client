@@ -34,7 +34,11 @@ const emailError = computed(() => {
 const passwordError = computed(() => {
   if (!touched.value.password) return ''
   if (!password.value) return 'Password is required'
-  if (password.value.length < 6) return 'Password must be at least 6 characters'
+  if (password.value.length < 8) return 'Password must be at least 8 characters'
+  if (!/[a-z]/.test(password.value)) return 'Password must contain at least one lowercase letter'
+  if (!/[A-Z]/.test(password.value)) return 'Password must contain at least one uppercase letter'
+  if (!/[0-9]/.test(password.value)) return 'Password must contain at least one number'
+  if (!/[^a-zA-Z0-9]/.test(password.value)) return 'Password must contain at least one special character'
   return ''
 })
 
@@ -42,7 +46,11 @@ const isFormValid = computed(() => {
   return (
     name.value.trim().length >= 2 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) &&
-    password.value.length >= 6
+    password.value.length >= 8 &&
+    /[a-z]/.test(password.value) &&
+    /[A-Z]/.test(password.value) &&
+    /[0-9]/.test(password.value) &&
+    /[^a-zA-Z0-9]/.test(password.value)
   )
 })
 
@@ -115,7 +123,7 @@ async function submit() {
               {{ passwordError }}
             </div>
             <div v-else id="passwordHelp" class="form-text">
-              Password must be at least 6 characters long
+              Password must be at least 8 characters with uppercase, lowercase, number, and special character
             </div>
           </div>
           <div v-if="auth.error" class="alert alert-danger">{{ auth.error }}</div>

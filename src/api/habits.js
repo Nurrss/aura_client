@@ -8,7 +8,8 @@ function formatError(e, fallback) {
 export async function getHabits() {
   try {
     const res = await api.get('/api/habits')
-    return res.data
+    // Response structure: { success, data: { data: [...], pagination: {...} } }
+    return res.data?.data?.data || []
   } catch (e) {
     throw formatError(e, 'Failed to load habits')
   }
@@ -17,7 +18,8 @@ export async function getHabits() {
 export async function createHabit(data) {
   try {
     const res = await api.post('/api/habits', data)
-    return res.data
+    // Response structure: { success, data: {...habit} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to create habit')
   }
@@ -26,7 +28,8 @@ export async function createHabit(data) {
 export async function updateHabit(id, data) {
   try {
     const res = await api.patch(`/api/habits/${id}`, data)
-    return res.data
+    // Response structure: { success, data: {...habit} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to update habit')
   }
@@ -35,7 +38,8 @@ export async function updateHabit(id, data) {
 export async function toggleHabit(id) {
   try {
     const res = await api.post(`/api/habits/${id}/toggle`)
-    return res.data
+    // Response structure: { success, data: {...habit} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to toggle habit')
   }

@@ -26,7 +26,8 @@ export async function postDailyReport(payload) {
 export async function getReports(range = {}) {
   try {
     const res = await api.get('/api/reports', { params: range })
-    return res.data
+    // Response structure: { success, data: [...reports] }
+    return res.data?.data || []
   } catch (e) {
     throw formatError(e, 'Failed to load reports')
   }

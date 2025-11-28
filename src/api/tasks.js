@@ -8,7 +8,8 @@ function formatError(e, fallback) {
 export async function getTasks({ from, to } = {}) {
   try {
     const res = await api.get('/api/tasks', { params: { from, to } })
-    return res.data
+    // Response structure: { success, data: { data: [...], pagination: {...} } }
+    return res.data?.data?.data || []
   } catch (e) {
     throw formatError(e, 'Failed to load tasks')
   }
@@ -17,7 +18,8 @@ export async function getTasks({ from, to } = {}) {
 export async function createTask(data) {
   try {
     const res = await api.post('/api/tasks', data)
-    return res.data
+    // Response structure: { success, data: {...task} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to create task')
   }
@@ -26,7 +28,8 @@ export async function createTask(data) {
 export async function updateTask(id, data) {
   try {
     const res = await api.patch(`/api/tasks/${id}`, data)
-    return res.data
+    // Response structure: { success, data: {...task} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to update task')
   }
@@ -35,7 +38,8 @@ export async function updateTask(id, data) {
 export async function moveTask(id, startTime, endTime) {
   try {
     const res = await api.patch(`/api/tasks/${id}/move`, { startTime, endTime })
-    return res.data
+    // Response structure: { success, data: {...task} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to move task')
   }
@@ -44,7 +48,8 @@ export async function moveTask(id, startTime, endTime) {
 export async function completeTask(id) {
   try {
     const res = await api.post(`/api/tasks/${id}/complete`)
-    return res.data
+    // Response structure: { success, data: {...} }
+    return res.data?.data
   } catch (e) {
     throw formatError(e, 'Failed to complete task')
   }

@@ -39,9 +39,27 @@
           </RouterLink>
         </li>
         <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/roadmap" aria-label="Go to Roadmaps">
+            <i class="bi bi-map me-2" aria-hidden="true"></i>
+            Roadmaps
+          </RouterLink>
+        </li>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/analytics" aria-label="Go to Analytics">
+            <i class="bi bi-graph-up me-2" aria-hidden="true"></i>
+            Analytics
+          </RouterLink>
+        </li>
+        <li class="nav-item" role="listitem">
           <RouterLink class="nav-link" to="/reports" aria-label="Go to Reports">
             <i class="bi bi-bar-chart me-2" aria-hidden="true"></i>
             Reports
+          </RouterLink>
+        </li>
+        <li class="nav-item" role="listitem">
+          <RouterLink class="nav-link" to="/finance" aria-label="Go to Finance">
+            <i class="bi bi-wallet2 me-2" aria-hidden="true"></i>
+            Finance
           </RouterLink>
         </li>
         <li class="nav-item" role="listitem">

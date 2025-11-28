@@ -1,15 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/authStore.js'
 import Dashboard from '../views/Dashboard.vue'
 import Tasks from '../views/Tasks.vue'
 import Habits from '../views/Habits.vue'
 import Calendar from '../views/Calendar.vue'
 import Pomodoro from '../views/Pomodoro.vue'
 import Reports from '../views/Reports.vue'
+import Finance from '../views/Finance.vue'
 import Settings from '../views/Settings.vue'
 import Profile from '../views/Profile.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import VerifyEmail from '../views/VerifyEmail.vue'
+import RoadmapDashboard from '../views/RoadmapDashboard.vue'
+import RoadmapCreate from '../views/RoadmapCreate.vue'
+import RoadmapDetail from '../views/RoadmapDetail.vue'
+import AnalyticsDashboard from '../views/AnalyticsDashboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +58,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/finance',
+      name: 'finance',
+      component: Finance,
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/settings',
       name: 'settings',
       component: Settings,
@@ -61,6 +73,30 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: Profile,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/roadmap',
+      name: 'roadmap',
+      component: RoadmapDashboard,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/roadmap/create',
+      name: 'roadmap-create',
+      component: RoadmapCreate,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/roadmap/:id',
+      name: 'roadmap-detail',
+      component: RoadmapDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/analytics',
+      name: 'analytics',
+      component: AnalyticsDashboard,
       meta: { requiresAuth: true },
     },
     {
@@ -86,8 +122,8 @@ const router = createRouter({
 
 // Navigation guard to check authentication
 router.beforeEach((to, from, next) => {
-  const accessToken = localStorage.getItem('aura-access-token')
-  const isAuthenticated = !!accessToken
+  const auth = useAuthStore()
+  const isAuthenticated = auth.isAuthenticated
 
   // If route requires authentication and user is not authenticated
   if (to.meta.requiresAuth && !isAuthenticated) {

@@ -72,7 +72,8 @@ onMounted(async () => {
 async function loadUserInfo() {
   try {
     const { data } = await api.get('/api/users/me')
-    userInfo.value = data
+    // Response structure: { success, data: {...user} }
+    userInfo.value = data?.data
   } catch (e) {
     console.error('Failed to load user info:', e)
   }

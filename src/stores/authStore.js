@@ -51,17 +51,22 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async login(payload) {
+      console.log('🔐 Starting login...')
       this.loading = true
       this.error = null
       try {
+        console.log('📡 Sending login request...')
         const { data } = await api.post('/api/auth/login', payload)
+        console.log('✅ Login response:', data)
         // With HttpOnly cookies, tokens are set automatically
         // Response contains only user info
         const user = data?.data?.user
         this._setAuth({ user })
         this.loading = false
+        console.log('✅ Login complete, user set:', user)
         return true
       } catch (e) {
+        console.error('❌ Login error:', e)
         this.loading = false
         this.error = e?.response?.data?.error || 'Login failed'
         return false

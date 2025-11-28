@@ -38,16 +38,23 @@ function markTouched(field) {
 }
 
 async function submit() {
+  console.log('🚀 Submit clicked')
   // Mark all fields as touched
   touched.value.email = true
   touched.value.password = true
 
-  if (!isFormValid.value) return
+  if (!isFormValid.value) {
+    console.log('❌ Form invalid')
+    return
+  }
 
+  console.log('📤 Calling auth.login...')
   const ok = await auth.login({ email: email.value, password: password.value })
+  console.log('📥 Login result:', ok)
   if (ok) {
     // Redirect to the page user was trying to access, or dashboard
     const redirect = route.query.redirect || '/dashboard'
+    console.log('🔄 Redirecting to:', redirect)
     router.push(redirect)
   }
 }
